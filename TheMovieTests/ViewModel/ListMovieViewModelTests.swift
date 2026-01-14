@@ -21,7 +21,8 @@ final class ListMovieViewModelTests: XCTestCase {
         ]
 
         let mockRepo = MockMovieRepository(
-            result: .success(movies)
+            popularResult: .success(movies),
+            searchResult: .success([])
         )
 
         let viewModel = ListMovieViewModel(repository: mockRepo)
@@ -42,7 +43,8 @@ final class ListMovieViewModelTests: XCTestCase {
         enum DummyError: Error { case failed }
 
         let mockRepo = MockMovieRepository(
-            result: .failure(DummyError.failed)
+            popularResult: .failure(DummyError.failed),
+            searchResult: .success([])
         )
 
         let viewModel = ListMovieViewModel(repository: mockRepo)
@@ -103,5 +105,24 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertEqual(movies.first?.id, 1)
         XCTAssertEqual(movies.first?.title, "Iron Man")
         XCTAssertEqual(movies.first?.posterPath, "/poster.jpg")
+    }
+
+    func testSearchMovieSuccess() async {
+        
+        let movies = [
+            makeMovieEntity(id: 1, title: "Iron Man")
+        ]
+        
+        let repo = MockMovieRepository(
+            searchResult: .success(movies)
+        )
+        
+        let viewModel = ListMovieViewModel(repository: repo)
+        viewModel.searchText = "iron"
+        
+        await viewModel.search()
+        
+        XCTAssertEqual(viewModel.movies.count, 1)
+        XCTAssertEqual(viewModel.movies.first?.title, "Iron Man")
     }
 }

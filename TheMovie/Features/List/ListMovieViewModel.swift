@@ -15,6 +15,7 @@ final class ListMovieViewModel {
     var movies: [MovieEntity] = []
     var isLoading = false
     var errorMessage: String?
+    var searchText: String = ""
 
     private let repository: MovieRepositoryProtocol
 
@@ -33,5 +34,14 @@ final class ListMovieViewModel {
             movies = []
             errorMessage = error.localizedDescription
         }
+    }
+
+    func search() async {
+        guard !searchText.isEmpty else { return }
+
+        movies = (try? await repository.searchMovie(
+            query: searchText,
+            page: 1
+        )) ?? []
     }
 }

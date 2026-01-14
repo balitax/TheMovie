@@ -10,6 +10,7 @@ import Foundation
 @MainActor
 protocol MovieRepositoryProtocol: AnyObject {
     func getPopularMovies(page: Int) async throws -> [MovieEntity]
+    func searchMovie(query: String, page: Int) async throws -> [MovieEntity]
 }
 
 @MainActor
@@ -32,14 +33,21 @@ final class MovieRepository {
         }
 
         // Fetch from API
-        let response: MovieDTO =
-            try await remote.request(.popular(page: page))
+        let response: MovieDTO = try await remote.request(.popular(page: page))
 
         let entities = response.results.map { $0.toEntity() }
 
         // Save locally
         try local.clear()
         try local.save(entities)
+
+        return entities
+    }
+    
+    func searchMovie(query: String, page: Int = 1) async throws -> [MovieEntity] {
+        let response: MovieDTO = try await remote.request(.search(query: query, page: page))
+
+        let entities = response.results.map { $0.toEntity() }
 
         return entities
     }
