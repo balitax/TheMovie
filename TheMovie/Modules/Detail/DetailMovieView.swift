@@ -132,6 +132,7 @@ struct DetailMovieView: View {
                 .accessibilityIdentifier("like_button")
             }
         }
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 

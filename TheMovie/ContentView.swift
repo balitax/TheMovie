@@ -9,47 +9,35 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    
+    @State private var selectedTab: AppTab = .home
+    @State private var showSearch = false
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView(selection: $selectedTab) {
+            ListMovieView(showSearch: $showSearch)
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                .tag(AppTab.home)
+            
+            FavoriteMovieView()
+                .tabItem {
+                    Label("Favorites", systemImage: "heart.fill")
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                .tag(AppTab.favorites)
+            
+            Color.clear
+                .tabItem {
+                    Label("Search", systemImage: "magnifyingglass")
                 }
-            }
-        } detail: {
-            Text("Select an item")
+                .tag(AppTab.search)
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+        .tint(AppColor.iconPrimary)
+        .onChange(of: selectedTab) { _, newTab in
+            if newTab == .search {
+                selectedTab = .home
+                showSearch = true
             }
         }
     }
@@ -57,5 +45,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

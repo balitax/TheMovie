@@ -1,5 +1,5 @@
 //
-//  ListMovieView.swift
+//  FavoriteMovieView.swift
 //  TheMovie
 //
 //  Created by Aguscahyo on 14/01/26.
@@ -7,16 +7,13 @@
 
 import SwiftUI
 
-struct ListMovieView: View {
-
+struct FavoriteMovieView: View {
+    
     private let columns: [GridItem] = Array(
         repeating: GridItem(.flexible(), spacing: 12),
         count: 2
     )
     
-    @State private var searchMovie: String = ""
-    @Binding var showSearch: Bool
-
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -38,23 +35,9 @@ struct ListMovieView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("The Movie")
+                    Text("Favorite Movie")
                         .font(.headline)
                         .foregroundStyle(AppColor.textPrimary)
-                }
-            }
-            .searchable(
-                text: $searchMovie,
-                isPresented: $showSearch,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search movies"
-            )
-            .onSubmit(of: .search) {
-                
-            }
-            .onChange(of: showSearch) { _, isShown in
-                if !isShown {
-                    searchMovie = ""
                 }
             }
         }
@@ -62,5 +45,5 @@ struct ListMovieView: View {
 }
 
 #Preview {
-    ListMovieView(showSearch: .constant(false))
+    FavoriteMovieView()
 }
