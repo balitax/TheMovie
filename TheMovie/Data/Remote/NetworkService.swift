@@ -8,5 +8,5 @@
 import Foundation
 
 protocol NetworkService {
-    func request<T: Decodable>(_ url: String) async throws -> T
+    func request<T: Decodable>(_ endpoint: MovieEndpoint) async throws -> T
 }

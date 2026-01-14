@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct TheMovieApp: App {
+    
+    let container = SwiftDataStack.makeContainer()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(container)
     }
 }
