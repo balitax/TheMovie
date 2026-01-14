@@ -7,6 +7,12 @@
 
 import Foundation
 
+@MainActor
+protocol MovieRepositoryProtocol: AnyObject {
+    func getPopularMovies(page: Int) async throws -> [MovieEntity]
+}
+
+@MainActor
 final class MovieRepository {
 
     private let remote: NetworkService
@@ -38,3 +44,6 @@ final class MovieRepository {
         return entities
     }
 }
+
+extension MovieRepository: MovieRepositoryProtocol {}
+
