@@ -15,6 +15,7 @@ struct DetailMovieState {
     var detail: MovieDetailDTO?
     var showTrailer = false
     var headerHeight: CGFloat = 420
+    var errorMessage: String?
 }
 
 // MARK: - ACTION
@@ -22,6 +23,7 @@ enum DetailMovieAction {
     case onAppear
     case showTrailer
     case likeMovie
+    case dismissError
 }
 
 // MARK: - EVENT
@@ -52,6 +54,8 @@ final class DetailMovieViewModel {
             state.showTrailer.toggle()
         case .likeMovie:
             state.movie?.isFavorite.toggle()
+        case .dismissError:
+            state.errorMessage = nil
         }
     }
 }
@@ -60,7 +64,11 @@ extension DetailMovieViewModel {
 
     func fetchMovieDetail() async {
         guard let movieId = state.movie?.id else { return }
-        state.detail = try? await repository.getMovieDetail(id: movieId)
+        do {
+            state.detail = try await repository.getMovieDetail(id: movieId)
+        } catch {
+            state.errorMessage = error.localizedDescription
+        }
     }
 
     var movieGenres: String {

@@ -118,5 +118,16 @@ struct DetailMovieView: View {
         .onAppear {
             viewModel.send(.onAppear)
         }
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { viewModel.state.errorMessage != nil },
+                set: { _ in viewModel.send(.dismissError) }
+            )
+        ) {
+            Button("OK") {}
+        } message: {
+            Text(viewModel.state.errorMessage ?? "")
+        }
     }
 }
