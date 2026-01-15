@@ -29,7 +29,6 @@ enum ListMovieEvent {
     case showErrorMessage(message: String)
 }
 
-@MainActor
 @Observable
 final class ListMovieViewModel {
 

@@ -30,7 +30,8 @@ struct ListMovieView: View {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(viewModel.state.movies) { movie in
                             NavigationLink {
-                                DetailMovieView()
+                                let detailViewModel = DetailMovieViewModel(movie: movie)
+                                DetailMovieView(viewModel: detailViewModel)
                             } label: {
                                 ListMovieCellView(movie: movie)
                             }

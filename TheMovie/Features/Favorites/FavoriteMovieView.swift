@@ -20,7 +20,7 @@ struct FavoriteMovieView: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(0..<20, id: \.self) { _ in
                         NavigationLink {
-                            DetailMovieView()
+//                            DetailMovieView()
                         } label: {
                             ListMovieCellView(movie: MovieEntity())
                         }

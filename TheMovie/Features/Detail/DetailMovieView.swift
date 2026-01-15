@@ -6,24 +6,28 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct DetailMovieView: View {
+
+    @State private var viewModel: DetailMovieViewModel
     
-    @State private var isLiked = false
-    @State private var showTrailer = false
-    @State private var showPlayInfo = false
-    
-    private let headerHeight: CGFloat = 420
-    
+    init(viewModel: DetailMovieViewModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
 
                 GeometryReader { geo in
                     let minY = geo.frame(in: .global).minY
-                    let height = minY > 0 ? headerHeight + minY : headerHeight
+                    let height = minY > 0 ? viewModel.state.headerHeight + minY : viewModel.state.headerHeight
                     
-                    Image("movie_img")
+                    KFImage(viewModel.state.movie?.posterImageURL)
+                        .placeholder {
+                            ProgressView()
+                        }
                         .resizable()
                         .scaledToFill()
                         .frame(height: height)
@@ -31,7 +35,7 @@ struct DetailMovieView: View {
                         .offset(y: minY > 0 ? -minY : 0)
                     
                 }
-                .frame(height: headerHeight)
+                .frame(height: viewModel.state.headerHeight)
 
                 VStack(alignment: .leading, spacing: 16) {
                     
@@ -41,17 +45,21 @@ struct DetailMovieView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 8)
                     
-                    Text("Invincible Iron Man (2008)")
+                    Text(viewModel.state.movie?.title ?? "")
                         .font(.title2.bold())
                         .foregroundColor(AppColor.textPrimary)
                     
                     HStack(spacing: 8) {
-                        Label("3 May 2008", systemImage: "calendar")
+                        Label(viewModel.state.movie?.releaseDate ?? "", systemImage: "calendar.circle.fill")
+                        Label("\((viewModel.state.movie?.popularity ?? 0).toKFormat)", systemImage: "p.circle.fill")
+                            .font(.caption)
+                        
                         Text("•")
-                        Text("ACTION")
-                        Text("•")
-                        Text("FHD")
-                            .fontWeight(.bold)
+                            .foregroundColor(.gray)
+                        
+                        Label("\((viewModel.state.movie?.voteAverage ?? 0).toKFormat)", systemImage: "checkmark.seal.fill")
+                            .font(.caption)
+                            .font(.caption.bold())
                     }
                     .font(.caption)
                     .foregroundColor(AppColor.textSecondary)
@@ -69,7 +77,7 @@ struct DetailMovieView: View {
                     
                     HStack(spacing: 12) {
                         Button {
-                            showPlayInfo.toggle()
+                            viewModel.send(.showPlayInfo)
                         } label: {
                             Label("Play", systemImage: "play.fill")
                                 .frame(maxWidth: .infinity)
@@ -77,7 +85,7 @@ struct DetailMovieView: View {
                         .buttonStyle(.borderedProminent)
                         
                         Button {
-                            showTrailer.toggle()
+                            viewModel.send(.showTrailer)
                         } label: {
                             Label("Trailer", systemImage: "film")
                                 .frame(maxWidth: .infinity)
@@ -91,10 +99,8 @@ struct DetailMovieView: View {
                         Text("Synopsis")
                             .foregroundColor(AppColor.textPrimary)
                             .font(.headline)
-                        
-                        Text("""
-    Double-sized issue! Co-released alongside this summer's surefire blockbuster hit IRON MAN 2, this issue is the perfect jumping-on point for fans of the films and readers new and old alike! New year. New decade. New trade dress. New threats. New loves. New armor. New Tony Stark. New storyline: RESILIENT. Get onboard the Eisner-award winning INVINCIBLE IRON MAN here! Rated A
-    """)
+
+                        Text(viewModel.state.movie?.overview ?? "")
                         .foregroundColor(AppColor.textSecondary)
                     }
                     
@@ -111,10 +117,10 @@ struct DetailMovieView: View {
             }
         }
         .ignoresSafeArea(edges: .top)
-        .sheet(isPresented: $showTrailer) {
+        .sheet(isPresented: viewModel.showTrailerBinding) {
             TrailerPlaceholderView()
         }
-        .sheet(isPresented: $showPlayInfo) {
+        .sheet(isPresented: viewModel.showPlayMovieBinding) {
             PlayInfoBottomSheet()
                 .presentationDetents([.height(230)])
                 .presentationDragIndicator(.visible)
@@ -124,18 +130,14 @@ struct DetailMovieView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    isLiked.toggle()
+                    viewModel.send(.likeMovie)
                 } label: {
-                    Image(systemName: isLiked ? "heart.fill" : "heart")
-                        .foregroundColor(isLiked ? AppColor.iconActive : AppColor.iconPrimary)
+                    Image(systemName: viewModel.state.isLiked ? "heart.fill" : "heart")
+                        .foregroundColor(viewModel.state.isLiked ? AppColor.iconActive : AppColor.iconPrimary)
                 }
                 .accessibilityIdentifier("like_button")
             }
         }
         .toolbar(.hidden, for: .tabBar)
     }
-}
-
-#Preview {
-    DetailMovieView()
 }
