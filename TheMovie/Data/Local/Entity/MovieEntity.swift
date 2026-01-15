@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class MovieEntity: Sendable {
+final class MovieEntity {
 
     // MARK: - Identity
     @Attribute(.unique) var id: Int
@@ -105,3 +105,5 @@ extension MovieEntity {
         isFavorite.toggle()
     }
 }
+
+extension MovieEntity: @unchecked Sendable {}
