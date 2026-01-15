@@ -23,7 +23,11 @@
 ## 📱 Demo
 
 ### App Preview
-<video src="docs/demo.mp4" width="400" controls></video>
+
+![App Demo](docs/demo.mp4)
+
+> [!TIP]
+> If the video doesn't play above, you can [view it directly here](docs/demo.mp4).
 
 | List View | Detail View |
 |:---------:|:-----------:|
