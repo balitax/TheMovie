@@ -12,8 +12,8 @@ import Combine
 // MARK: - STATE
 struct DetailMovieState {
     var movie: MovieEntity?
+    var detail: MovieDetailDTO?
     var showTrailer = false
-    var showPlayInfo = false
     var headerHeight: CGFloat = 420
 }
 
@@ -21,7 +21,6 @@ struct DetailMovieState {
 enum DetailMovieAction {
     case onAppear
     case showTrailer
-    case showPlayInfo
     case likeMovie
 }
 
@@ -35,17 +34,22 @@ final class DetailMovieViewModel {
     private(set) var state = DetailMovieState()
     @ObservationIgnored let event = PassthroughSubject<DetailMovieEvent, Never>()
     
-    init(movie: MovieEntity?) {
+    // MARK: - Dependencies
+    private let repository: MovieRepositoryProtocol
+
+    init(repository: MovieRepositoryProtocol, movie: MovieEntity?) {
+        self.repository = repository
         self.state.movie = movie
     }
-    
+
     func send(_ action: DetailMovieAction) {
         switch action {
-        case .onAppear: break
+        case .onAppear:
+            Task {
+                await fetchMovieDetail()
+            }
         case .showTrailer:
             state.showTrailer.toggle()
-        case .showPlayInfo:
-            state.showPlayInfo.toggle()
         case .likeMovie:
             state.movie?.isFavorite.toggle()
         }
@@ -53,17 +57,37 @@ final class DetailMovieViewModel {
 }
 
 extension DetailMovieViewModel {
+
+    func fetchMovieDetail() async {
+        guard let movieId = state.movie?.id else { return }
+        state.detail = try? await repository.getMovieDetail(id: movieId)
+    }
+
+    var movieGenres: String {
+        return state.detail?.genres.compactMap { $0.name }.joined(separator: ", ") ?? ""
+    }
+    
+    var movieProductionCountries: String {
+        return state.detail?.productionCountries.compactMap { $0.name }.joined(separator: ", ") ?? ""
+    }
+    
+    var movieLanguages: String {
+        return state.detail?.spokenLanguages.compactMap { $0.name }.joined(separator: ", ") ?? ""
+    }
+    
+    var movieProductionCompanies: String {
+        return state.detail?.productionCompanies.compactMap { $0.name }.joined(separator: ", ") ?? ""
+    }
+
+    var youtubeURL: String {
+        let trailerURL = state.detail?.videos.results.first { $0.site == "YouTube" }?.youtubeURL ?? ""
+        return trailerURL
+    }
+
     var showTrailerBinding: Binding<Bool> {
         Binding(
             get: { self.state.showTrailer },
             set: { _ in self.send(.showTrailer) }
-        )
-    }
-    
-    var showPlayMovieBinding: Binding<Bool> {
-        Binding(
-            get: { self.state.showPlayInfo },
-            set: { _ in self.send(.showPlayInfo) }
         )
     }
 }

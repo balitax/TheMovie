@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C3653F632F17ECF9003D25CC /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = C3653F622F17ECF9003D25CC /* Alamofire */; };
 		C3653F662F17ED58003D25CC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = C3653F652F17ED58003D25CC /* Kingfisher */; };
+		C3653FB72F18CF4C003D25CC /* YouTubePlayerKit in Frameworks */ = {isa = PBXBuildFile; productRef = C3653FB62F18CF4C003D25CC /* YouTubePlayerKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 			files = (
 				C3653F662F17ED58003D25CC /* Kingfisher in Frameworks */,
 				C3653F632F17ECF9003D25CC /* Alamofire in Frameworks */,
+				C3653FB72F18CF4C003D25CC /* YouTubePlayerKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				C3653F622F17ECF9003D25CC /* Alamofire */,
 				C3653F652F17ED58003D25CC /* Kingfisher */,
+				C3653FB62F18CF4C003D25CC /* YouTubePlayerKit */,
 			);
 			productName = TheMovie;
 			productReference = C3653F132F17CEAD003D25CC /* TheMovie.app */;
@@ -207,6 +210,7 @@
 			packageReferences = (
 				C3653F612F17ECF9003D25CC /* XCRemoteSwiftPackageReference "Alamofire" */,
 				C3653F642F17ED58003D25CC /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				C3653FB52F18CF4C003D25CC /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C3653F142F17CEAD003D25CC /* Products */;
@@ -611,6 +615,14 @@
 				minimumVersion = 8.6.2;
 			};
 		};
+		C3653FB52F18CF4C003D25CC /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SvenTiigi/YouTubePlayerKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.5;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -623,6 +635,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C3653F642F17ED58003D25CC /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		C3653FB62F18CF4C003D25CC /* YouTubePlayerKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C3653FB52F18CF4C003D25CC /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */;
+			productName = YouTubePlayerKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

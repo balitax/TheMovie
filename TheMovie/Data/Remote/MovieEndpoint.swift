@@ -11,6 +11,7 @@ enum MovieEndpoint {
 
     case popular(page: Int)
     case search(query: String, page: Int)
+    case detail(id: Int)
 
     var path: String {
         switch self {
@@ -18,6 +19,8 @@ enum MovieEndpoint {
             return "/movie/popular"
         case .search:
             return "/search/movie"
+        case .detail(let id):
+            return "/movie/\(id)"
         }
     }
 
@@ -34,6 +37,8 @@ enum MovieEndpoint {
             params["query"] = query
             params["page"] = page
             params["include_adult"] = false
+        case .detail:
+            params["append_to_response"] = "videos"
         }
 
         return params

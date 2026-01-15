@@ -6,19 +6,15 @@
 //
 
 import SwiftUI
+import YouTubePlayerKit
 
 struct TrailerPlaceholderView: View {
-    
+
+    let youtubeURL: String
+
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "film")
-                .font(.largeTitle)
-            Text("Trailer Player")
-                .font(.headline)
-            Text("AVPlayer goes here")
-                .font(.caption)
-                .foregroundColor(AppColor.textSecondary)
-        }
-        .padding()
+        let player = YouTubePlayer(urlString: youtubeURL)
+        YouTubePlayerView(player)
+            .background(Color.black)
     }
 }

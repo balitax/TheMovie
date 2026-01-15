@@ -38,7 +38,7 @@ struct DetailMovieView: View {
                 .frame(height: viewModel.state.headerHeight)
 
                 VStack(alignment: .leading, spacing: 16) {
-                    
+
                     Capsule()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 40, height: 5)
@@ -63,35 +63,14 @@ struct DetailMovieView: View {
                     }
                     .font(.caption)
                     .foregroundColor(AppColor.textSecondary)
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        Text("8.5 / 10")
-                            .font(.caption.bold())
-                            .foregroundColor(AppColor.textPrimary)
-                        Text("(29.2M views)")
-                            .font(.caption)
-                            .foregroundColor(AppColor.textSecondary)
+
+                    Button {
+                        viewModel.send(.showTrailer)
+                    } label: {
+                        Label("Trailer", systemImage: "film")
+                            .frame(maxWidth: .infinity)
                     }
-                    
-                    HStack(spacing: 12) {
-                        Button {
-                            viewModel.send(.showPlayInfo)
-                        } label: {
-                            Label("Play", systemImage: "play.fill")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        
-                        Button {
-                            viewModel.send(.showTrailer)
-                        } label: {
-                            Label("Trailer", systemImage: "film")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                    }
+                    .buttonStyle(.bordered)
                     
                     Divider()
                     
@@ -106,9 +85,10 @@ struct DetailMovieView: View {
                     
                     Divider()
                     
-                    InfoRow(title: "Director", value: "Jon Favreau")
-                    InfoRow(title: "Duration", value: "2h 6m")
-                    InfoRow(title: "Language", value: "English")
+                    InfoRow(title: "Genres", value: viewModel.movieGenres)
+                    InfoRow(title: "Production Countries", value: viewModel.movieProductionCountries)
+                    InfoRow(title: "Languages", value: viewModel.movieLanguages)
+                    InfoRow(title: "Product Companies", value: viewModel.movieProductionCompanies)
                 }
                 .padding(16)
                 .background(.white)
@@ -118,12 +98,8 @@ struct DetailMovieView: View {
         }
         .ignoresSafeArea(edges: .top)
         .sheet(isPresented: viewModel.showTrailerBinding) {
-            TrailerPlaceholderView()
-        }
-        .sheet(isPresented: viewModel.showPlayMovieBinding) {
-            PlayInfoBottomSheet()
-                .presentationDetents([.height(230)])
-                .presentationDragIndicator(.visible)
+            TrailerPlaceholderView(youtubeURL: viewModel.youtubeURL)
+                .presentationDetents([.height(600)])
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -139,5 +115,8 @@ struct DetailMovieView: View {
             }
         }
         .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+            viewModel.send(.onAppear)
+        }
     }
 }

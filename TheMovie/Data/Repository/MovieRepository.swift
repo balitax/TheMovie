@@ -10,6 +10,7 @@ import Foundation
 protocol MovieRepositoryProtocol: AnyObject {
     func getPopularMovies(page: Int) async throws -> [MovieEntity]
     func searchMovie(query: String, page: Int) async throws -> [MovieEntity]
+    func getMovieDetail(id: Int) async throws -> MovieDetailDTO
 }
 
 final class MovieRepository {
@@ -48,6 +49,10 @@ final class MovieRepository {
         let entities = response.results.map { $0.toEntity() }
 
         return entities
+    }
+
+    func getMovieDetail(id: Int) async throws -> MovieDetailDTO {
+        try await remote.request(.detail(id: id))
     }
 }
 

@@ -9,7 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct FavoriteMovieView: View {
-    
+
+    @Environment(\.modelContext) private var modelContext
+
     private let columns: [GridItem] = Array(
         repeating: GridItem(.flexible(), spacing: 12),
         count: 2
@@ -27,7 +29,8 @@ struct FavoriteMovieView: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(viewModel.state.movies) { movie in
                         NavigationLink {
-                            let detailViewModel = DetailMovieViewModel(movie: movie)
+                            let container = AppContainer(modelContext: modelContext)
+                            let detailViewModel = DetailMovieViewModel(repository: container.makeMovieRepository(), movie: movie)
                             DetailMovieView(viewModel: detailViewModel)
                         } label: {
                             ListMovieCellView(movie: movie) { faviroteMovie in
