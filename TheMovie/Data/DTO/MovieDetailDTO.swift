@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - MovieDetailDTO
-struct MovieDetailDTO: Codable {
+struct MovieDetailDTO: Codable, Sendable {
 
     let genres: [GenreDTO]
     let originCountry: [String]

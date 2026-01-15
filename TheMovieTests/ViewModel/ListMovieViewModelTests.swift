@@ -11,6 +11,7 @@ import SwiftData
 
 final class ListMovieViewModelTests: XCTestCase {
 
+    @MainActor
     func testLoadPopularMoviesSuccess() async {
 
         // GIVEN
@@ -35,6 +36,7 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
     }
 
+    @MainActor
     func testLoadPopularMoviesFailure() async {
 
         // GIVEN
@@ -55,6 +57,7 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.state.movies.isEmpty)
     }
 
+    @MainActor
     func testGetPopularMoviesFromRemote() async throws {
         
         // GIVEN: mock API response
@@ -104,6 +107,7 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertEqual(movies.first?.posterPath, "/poster.jpg")
     }
 
+    @MainActor
     func testSearchMovieSuccess() async {
         
         let movies = [

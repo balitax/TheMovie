@@ -11,13 +11,16 @@ final class MockMovieRepository: MovieRepositoryProtocol {
 
     let popularResult: Result<[MovieEntity], Error>
     let searchResult: Result<[MovieEntity], Error>
+    let detailResult: Result<MovieDetailDTO, Error>
 
     init(
         popularResult: Result<[MovieEntity], Error> = .success([]),
-        searchResult: Result<[MovieEntity], Error> = .success([])
+        searchResult: Result<[MovieEntity], Error> = .success([]),
+        detailResult: Result<MovieDetailDTO, Error> = .success(makeMovieDetailDTO())
     ) {
         self.popularResult = popularResult
         self.searchResult = searchResult
+        self.detailResult = detailResult
     }
 
     func getPopularMovies(page: Int) async throws -> [MovieEntity] {
@@ -30,6 +33,13 @@ final class MockMovieRepository: MovieRepositoryProtocol {
     func searchMovie(query: String, page: Int) async throws -> [MovieEntity] {
         switch searchResult {
         case .success(let movies): return movies
+        case .failure(let error): throw error
+        }
+    }
+    
+    func getMovieDetail(id: Int) async throws -> MovieDetailDTO {
+        switch detailResult {
+        case .success(let detail): return detail
         case .failure(let error): throw error
         }
     }
