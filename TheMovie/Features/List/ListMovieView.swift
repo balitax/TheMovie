@@ -32,7 +32,9 @@ struct ListMovieView: View {
                                 let detailViewModel = DetailMovieViewModel(movie: movie)
                                 DetailMovieView(viewModel: detailViewModel)
                             } label: {
-                                ListMovieCellView(movie: movie)
+                                ListMovieCellView(movie: movie) { favoriteMovie in
+                                    viewModel.toggleFavorite(favoriteMovie)
+                                }
                             }
                             .buttonStyle(.plain)
                         }

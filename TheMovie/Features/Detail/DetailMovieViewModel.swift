@@ -12,7 +12,6 @@ import Combine
 // MARK: - STATE
 struct DetailMovieState {
     var movie: MovieEntity?
-    var isLiked = false
     var showTrailer = false
     var showPlayInfo = false
     var headerHeight: CGFloat = 420
@@ -48,7 +47,7 @@ final class DetailMovieViewModel {
         case .showPlayInfo:
             state.showPlayInfo.toggle()
         case .likeMovie:
-            state.isLiked.toggle()
+            state.movie?.isFavorite.toggle()
         }
     }
 }

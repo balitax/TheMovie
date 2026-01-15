@@ -23,7 +23,7 @@ struct ContentView: View {
                 }
                 .tag(AppTab.home)
 
-            FavoriteMovieView()
+            FavoriteMovieView(viewModel: container.makeFavoriteMovieViewModel())
                 .tabItem {
                     Label("Favorites", systemImage: "heart.fill")
                 }

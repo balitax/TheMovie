@@ -13,6 +13,7 @@ import Combine
 struct ListMovieState {
     var movies: [MovieEntity] = []
     var isLoading = false
+    var hasLoaded: Bool = false
     var searchText: String = ""
 }
 
@@ -20,13 +21,6 @@ struct ListMovieState {
 enum ListMovieAction {
     case onAppear
     case searchMovie
-    case errorMessage(message: String)
-}
-
-// MARK: - EVENT
-enum ListMovieEvent {
-    case showLoading(loading: Bool)
-    case showErrorMessage(message: String)
 }
 
 @Observable
@@ -34,7 +28,6 @@ final class ListMovieViewModel {
 
     // MARK: Variables
     private(set) var state = ListMovieState()
-    @ObservationIgnored let event = PassthroughSubject<ListMovieEvent, Never>()
 
     // MARK: - Dependencies
     private let repository: MovieRepositoryProtocol
@@ -46,6 +39,8 @@ final class ListMovieViewModel {
     func send(_ action: ListMovieAction) {
         switch action {
         case .onAppear:
+            guard !state.hasLoaded else { return }
+            state.hasLoaded = true
             Task {
                 await fetchMovie()
             }
@@ -53,11 +48,11 @@ final class ListMovieViewModel {
             Task {
                 await search()
             }
-        case .errorMessage(let message):
-            event.send(.showErrorMessage(message: message))
         }
     }
+}
 
+extension ListMovieViewModel {
     func fetchMovie() async {
         state.isLoading = true
         defer {
@@ -68,7 +63,7 @@ final class ListMovieViewModel {
             state.movies = try await repository.getPopularMovies(page: 1)
         } catch {
             state.movies = []
-            send(.errorMessage(message: error.localizedDescription))
+            print("error log console : \(error.localizedDescription)")
         }
     }
 
@@ -88,15 +83,16 @@ final class ListMovieViewModel {
                 query: state.searchText,
                 page: 1
             )
-            print("CARI ", state.movies)
         } catch {
             state.movies = []
-            send(.errorMessage(message: error.localizedDescription))
+            print("error log console : \(error.localizedDescription)")
         }
     }
-}
 
-extension ListMovieViewModel {
+    func toggleFavorite(_ movie: MovieEntity) {
+        movie.isFavorite.toggle()
+    }
+
     var searchTextBinding: Binding<String> {
         Binding(
             get: { self.state.searchText },

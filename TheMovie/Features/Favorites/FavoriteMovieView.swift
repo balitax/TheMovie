@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FavoriteMovieView: View {
     
@@ -14,15 +15,24 @@ struct FavoriteMovieView: View {
         count: 2
     )
     
+    @State private var viewModel: FavoriteMovieViewModel
+    
+    init(viewModel: FavoriteMovieViewModel) {
+        self.viewModel = viewModel
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(0..<20, id: \.self) { _ in
+                    ForEach(viewModel.state.movies) { movie in
                         NavigationLink {
-//                            DetailMovieView()
+                            let detailViewModel = DetailMovieViewModel(movie: movie)
+                            DetailMovieView(viewModel: detailViewModel)
                         } label: {
-                            ListMovieCellView(movie: MovieEntity())
+                            ListMovieCellView(movie: movie) { faviroteMovie in
+                                viewModel.toggleFavorite(faviroteMovie)
+                            }
                         }
                         .buttonStyle(.plain)
                     }
@@ -40,10 +50,17 @@ struct FavoriteMovieView: View {
                         .foregroundStyle(AppColor.textPrimary)
                 }
             }
+            .onAppear {
+                viewModel.send(.onAppear)
+            }
         }
     }
 }
 
 #Preview {
-    FavoriteMovieView()
+    let container = try! ModelContainer(for: MovieEntity.self)
+    let context = ModelContext(container)
+    
+    let appContainer = AppContainer(modelContext: context)
+    FavoriteMovieView(viewModel: appContainer.makeFavoriteMovieViewModel())
 }

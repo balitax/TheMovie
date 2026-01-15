@@ -55,7 +55,7 @@ struct MovieResult: Codable {
 
 extension MovieResult {
 
-    func toEntity() -> MovieEntity {
+    func toEntity(existing: MovieEntity? = nil) -> MovieEntity {
         MovieEntity(
             id: id,
             title: title,
@@ -70,7 +70,8 @@ extension MovieResult {
             video: video,
             originalTitle: originalTitle,
             originalLanguage: originalLanguage,
-            genreIDs: genreIDS
+            genreIDs: genreIDS,
+            isFavorite: existing?.isFavorite ?? false
         )
     }
 }

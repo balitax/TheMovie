@@ -31,10 +31,22 @@ final class AppContainer {
         )
     }
 
-    // MARK: - ViewModels
+    // MARK: - List Movie ViewModels
     func makeListMovieViewModel() -> ListMovieViewModel {
         ListMovieViewModel(
             repository: makeMovieRepository()
+        )
+    }
+
+    // MARK: - Local Data Sources
+    private func makeMovieLocalDataSource() -> MovieLocalDataSource {
+        MovieLocalDataSource(context: modelContext)
+    }
+
+    // MARK: - Favorite Movie ViewModels
+    func makeFavoriteMovieViewModel() -> FavoriteMovieViewModel {
+        FavoriteMovieViewModel(
+            localDataSource: makeMovieLocalDataSource()
         )
     }
 }

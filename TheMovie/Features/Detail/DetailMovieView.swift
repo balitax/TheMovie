@@ -132,8 +132,8 @@ struct DetailMovieView: View {
                 Button {
                     viewModel.send(.likeMovie)
                 } label: {
-                    Image(systemName: viewModel.state.isLiked ? "heart.fill" : "heart")
-                        .foregroundColor(viewModel.state.isLiked ? AppColor.iconActive : AppColor.iconPrimary)
+                    Image(systemName: viewModel.state.movie?.isFavorite == true ? "heart.fill" : "heart")
+                        .foregroundColor(viewModel.state.movie?.isFavorite == true ? AppColor.iconActive : AppColor.iconPrimary)
                 }
                 .accessibilityIdentifier("like_button")
             }

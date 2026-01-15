@@ -21,6 +21,9 @@ final class MovieEntity: Sendable {
     var backdropPath: String
     var releaseDate: String
 
+    // MARK: - Favorite
+    var isFavorite: Bool
+
     var posterImageURL: URL? {
         return URL(string: "https://image.tmdb.org/t/p/original/\(posterPath)")
     }
@@ -55,6 +58,7 @@ final class MovieEntity: Sendable {
         originalTitle: String,
         originalLanguage: String,
         genreIDs: [Int],
+        isFavorite: Bool = false,
         cachedAt: Date = .now
     ) {
         self.id = id
@@ -71,6 +75,7 @@ final class MovieEntity: Sendable {
         self.originalTitle = originalTitle
         self.originalLanguage = originalLanguage
         self.genreIDs = genreIDs
+        self.isFavorite = isFavorite
         self.cachedAt = cachedAt
     }
 
@@ -90,6 +95,13 @@ final class MovieEntity: Sendable {
         self.originalTitle = ""
         self.originalLanguage = ""
         self.genreIDs = []
+        self.isFavorite = false
         self.cachedAt = .now
+    }
+}
+
+extension MovieEntity {
+    func toggleFavorite() {
+        isFavorite.toggle()
     }
 }

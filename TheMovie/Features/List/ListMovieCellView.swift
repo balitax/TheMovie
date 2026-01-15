@@ -11,9 +11,11 @@ import Kingfisher
 struct ListMovieCellView: View {
     
     let movie: MovieEntity
+    let onToggleFavorite: (MovieEntity) -> Void
 
-    init(movie: MovieEntity) {
+    init(movie: MovieEntity, onToggleFavorite: @escaping (MovieEntity) -> Void) {
         self.movie = movie
+        self.onToggleFavorite = onToggleFavorite
     }
 
     var body: some View {
@@ -45,13 +47,13 @@ struct ListMovieCellView: View {
                         .cornerRadius(8)
                     
                     Spacer()
-                    
+
                     Button(action: {
-                        
+                        onToggleFavorite(movie)
                     }, label: {
-                        Image(systemName: "heart.fill")
+                        Image(systemName: movie.isFavorite ? "heart.fill" : "heart")
                             .font(.caption)
-                            .foregroundColor(AppColor.textPrimary)
+                            .foregroundColor(movie.isFavorite ? AppColor.iconActive : AppColor.iconPrimary)
                             .padding(8)
                             .background(.white.opacity(0.9))
                             .clipShape(Circle())
@@ -93,5 +95,5 @@ struct ListMovieCellView: View {
 }
 
 #Preview {
-    ListMovieCellView(movie: MovieEntity())
+    ListMovieCellView(movie: MovieEntity(), onToggleFavorite: { _ in })
 }
