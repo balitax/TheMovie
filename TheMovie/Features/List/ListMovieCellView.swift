@@ -23,11 +23,15 @@ struct ListMovieCellView: View {
 
                 KFImage(movie.posterImageURL)
                     .placeholder {
-                        ProgressView()
+                        ZStack {
+                            Color.gray.opacity(0.15)
+                            ProgressView()
+                        }
+                        .frame(height: 250)
                     }
                     .resizable()
                     .scaledToFill()
-                    .frame(maxHeight: 250)
+                    .frame(height: 250)
                     .clipped()
 
                 HStack {
@@ -63,6 +67,7 @@ struct ListMovieCellView: View {
                     .font(.subheadline.bold())
                     .lineLimit(2)
                     .foregroundColor(AppColor.textPrimary)
+                    .frame(height: 40)
                 
                 HStack(spacing: 6) {
                     Label("\(movie.popularity.toKFormat)", systemImage: "p.circle.fill")

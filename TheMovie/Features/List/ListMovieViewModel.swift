@@ -19,7 +19,7 @@ struct ListMovieState {
 // MARK: - ACTION
 enum ListMovieAction {
     case onAppear
-    case searchMovie(query: String)
+    case searchMovie
     case errorMessage(message: String)
 }
 
@@ -49,8 +49,7 @@ final class ListMovieViewModel {
             Task {
                 await fetchMovie()
             }
-        case .searchMovie(let query):
-            state.searchText = query
+        case .searchMovie:
             Task {
                 await search()
             }
@@ -67,7 +66,6 @@ final class ListMovieViewModel {
 
         do {
             state.movies = try await repository.getPopularMovies(page: 1)
-            print("MOVIES ", state.movies)
         } catch {
             state.movies = []
             send(.errorMessage(message: error.localizedDescription))
@@ -90,9 +88,21 @@ final class ListMovieViewModel {
                 query: state.searchText,
                 page: 1
             )
+            print("CARI ", state.movies)
         } catch {
             state.movies = []
             send(.errorMessage(message: error.localizedDescription))
         }
+    }
+}
+
+extension ListMovieViewModel {
+    var searchTextBinding: Binding<String> {
+        Binding(
+            get: { self.state.searchText },
+            set: { newValue in
+                self.state.searchText = newValue
+            }
+        )
     }
 }

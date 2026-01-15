@@ -23,12 +23,16 @@ struct MovieDTO: Codable {
 // MARK: - Result
 struct MovieResult: Codable {
     let adult: Bool
-    let backdropPath: String
+    let backdropPath: String?
     let genreIDS: [Int]
     let id: Int
-    let originalLanguage, originalTitle, overview: String
+    let originalLanguage: String
+    let originalTitle: String
+    let overview: String
     let popularity: Double
-    let posterPath, releaseDate, title: String
+    let posterPath: String?
+    let releaseDate: String?
+    let title: String
     let video: Bool
     let voteAverage: Double
     let voteCount: Int
@@ -56,9 +60,9 @@ extension MovieResult {
             id: id,
             title: title,
             overview: overview,
-            posterPath: posterPath,
-            backdropPath: backdropPath,
-            releaseDate: releaseDate,
+            posterPath: posterPath ?? "",
+            backdropPath: backdropPath ?? "",
+            releaseDate: releaseDate ?? "",
             popularity: popularity,
             voteAverage: voteAverage,
             voteCount: voteCount,

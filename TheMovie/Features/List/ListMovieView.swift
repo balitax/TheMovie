@@ -15,7 +15,6 @@ struct ListMovieView: View {
         count: 2
     )
 
-    @State private var searchMovie: String = ""
     @State private var viewModel: ListMovieViewModel
     
     init(viewModel: ListMovieViewModel) {
@@ -58,12 +57,17 @@ struct ListMovieView: View {
                 }
             }
             .searchable(
-                text: $searchMovie,
+                text: viewModel.searchTextBinding,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search movies"
             )
             .onSubmit(of: .search) {
-
+                viewModel.send(.searchMovie)
+            }
+            .onChange(of: viewModel.state.searchText) { _, newValue in
+                if newValue.isEmpty {
+                    viewModel.send(.onAppear)
+                }
             }
             .onAppear {
                 viewModel.send(.onAppear)
