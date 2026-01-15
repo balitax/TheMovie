@@ -24,16 +24,9 @@
 
 ### App Preview
 
-![App Demo](docs/demo.mp4)
-
-> [!TIP]
-> If the video doesn't play above, you can [view it directly here](docs/demo.mp4).
-
 | List View | Detail View |
 |:---------:|:-----------:|
 | <img src="docs/list.png" width="250" alt="List View" /> | <img src="docs/detail.png" width="250" alt="Detail View" /> |
-
-*(Note: Place screenshots in a `docs/` folder in your project root)*
 
 ## 🛠 Tech Stack
 
