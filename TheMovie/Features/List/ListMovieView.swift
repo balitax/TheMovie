@@ -51,6 +51,12 @@ struct ListMovieView: View {
                 // MARK: - Loading Overlay
                 if viewModel.state.isLoading {
                     LoadingView()
+                } else if viewModel.state.movies.isEmpty {
+                    EmptyStateView(
+                        iconName: viewModel.state.searchText.isEmpty ? "film.stack" : "magnifyingglass",
+                        title: viewModel.state.searchText.isEmpty ? "No Movies" : "No Results Found",
+                        message: viewModel.state.searchText.isEmpty ? "Popular movies will appear here." : "We couldn't find any movies matching '\(viewModel.state.searchText)'."
+                    )
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -73,7 +79,7 @@ struct ListMovieView: View {
             }
             .onChange(of: viewModel.state.searchText) { _, newValue in
                 if newValue.isEmpty {
-                    viewModel.send(.onAppear)
+                    viewModel.send(.reset)
                 }
             }
             .onAppear {

@@ -21,6 +21,7 @@ struct ListMovieState {
 enum ListMovieAction {
     case onAppear
     case searchMovie
+    case reset
 }
 
 @Observable
@@ -48,6 +49,11 @@ final class ListMovieViewModel {
             Task {
                 await search()
             }
+        case .reset:
+            state.hasLoaded = true
+            Task {
+                await fetchMovie()
+            }
         }
     }
 }
@@ -69,7 +75,7 @@ extension ListMovieViewModel {
 
     func search() async {
         guard !state.searchText.isEmpty else {
-            state.movies = []
+            await fetchMovie()
             return
         }
 
