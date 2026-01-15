@@ -12,12 +12,18 @@
 ## ✨ Features
 
 - **Browse Movies**: Discover popular movies with infinite scrolling pagination.
-- **Search**: Real-time movie search functionality.
-- **Offline Favorites**: Save movies to your local database (SwiftData) and access them without an internet connection.
+- **Search**: Real-time movie search functionality with auto-reset behavior.
+- **Persistent Favorites**: A dedicated `FavoriteMovieEntity` ensures your marked movies are never lost, even when clearing the popular movie cache.
+- **Pull to Refresh**: Force a fresh data sync from TMDB while bypassing local cache.
+- **Splash Screen**: Premium animated entry screen to improve launch perception.
+- **Error Handling**: Comprehensive error capturing with user-friendly alerts across all screens.
 - **Rich Details**: View comprehensive movie info including genres, production companies, and trailers (YouTube integration).
-- **Responsive UI**: Optimized layouts using `LazyVGrid` and modern SwiftUI transitions.
+- **Responsive UI**: Optimized layouts using `LazyVGrid`, modern SwiftUI transitions, and clear Empty States.
 
 ## 📱 Demo
+
+### App Preview
+<video src="docs/demo.mp4" width="400" controls></video>
 
 | List View | Detail View |
 |:---------:|:-----------:|
