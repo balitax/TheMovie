@@ -41,8 +41,8 @@ struct FavoriteMovieView: View {
                                     let detailViewModel = DetailMovieViewModel(repository: container.makeMovieRepository(), movie: movie)
                                     DetailMovieView(viewModel: detailViewModel)
                                 } label: {
-                                    ListMovieCellView(movie: movie) { faviroteMovie in
-                                        viewModel.toggleFavorite(faviroteMovie)
+                                    ListMovieCellView(movie: movie) { favoriteMovie in
+                                        viewModel.toggleFavorite(favoriteMovie)
                                     }
                                 }
                                 .buttonStyle(.plain)
@@ -65,6 +65,17 @@ struct FavoriteMovieView: View {
             }
             .onAppear {
                 viewModel.send(.onAppear)
+            }
+            .alert(
+                "Error",
+                isPresented: Binding(
+                    get: { viewModel.state.errorMessage != nil },
+                    set: { _ in viewModel.send(.dismissError) }
+                )
+            ) {
+                Button("OK") {}
+            } message: {
+                Text(viewModel.state.errorMessage ?? "")
             }
         }
     }

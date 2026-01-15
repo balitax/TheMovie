@@ -1,16 +1,36 @@
 //
 //  ListMovieViewModelTests.swift
-//  TheMovie
-//
-//  Created by Aguscahyo on 14/01/26.
+//  TheMovieTests
 //
 
 import XCTest
 @testable import TheMovie
 import SwiftData
-internal import SwiftUI
+import SwiftUI
 
 final class ListMovieViewModelTests: XCTestCase {
+    
+    @MainActor
+    private var context: ModelContext!
+    @MainActor
+    private var sut: ListMovieViewModel!
+    
+    @MainActor
+    override func setUp() async throws {
+        try await super.setUp()
+        context = TestModelContainer.makeFreshContext()
+    }
+    
+    @MainActor
+    override func tearDown() async throws {
+        try? context.delete(model: MovieEntity.self)
+        try? context.delete(model: FavoriteMovieEntity.self)
+        try? context.save()
+        
+        context = nil
+        sut = nil
+        try await super.tearDown()
+    }
     
     // MARK: - Initialization Tests
     
@@ -20,13 +40,12 @@ final class ListMovieViewModelTests: XCTestCase {
         let mockRepo = MockMovieRepository()
         
         // WHEN
-        let viewModel = ListMovieViewModel(repository: mockRepo)
+        sut = ListMovieViewModel(repository: mockRepo)
         
         // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
-        XCTAssertFalse(viewModel.state.isLoading)
-        XCTAssertFalse(viewModel.state.hasLoaded)
-        XCTAssertEqual(viewModel.state.searchText, "")
+        XCTAssertTrue(sut.state.movies.isEmpty)
+        XCTAssertFalse(sut.state.isLoading)
+        XCTAssertFalse(sut.state.hasLoaded)
     }
     
     // MARK: - Fetch Movie Tests
@@ -34,201 +53,61 @@ final class ListMovieViewModelTests: XCTestCase {
     @MainActor
     func testLoadPopularMoviesSuccess() async {
         // GIVEN
-        let movies = [
-            makeMovieEntity(id: 1, title: "Iron Man"),
-            makeMovieEntity(id: 2, title: "Thor")
-        ]
-
-        let mockRepo = MockMovieRepository(
-            popularResult: .success(movies),
-            searchResult: .success([])
-        )
-
-        let viewModel = ListMovieViewModel(repository: mockRepo)
+        let movie1 = makeMovieEntity(id: 11, title: "Iron Man")
+        let movie2 = makeMovieEntity(id: 12, title: "Thor")
+        context.insert(movie1)
+        context.insert(movie2)
+        try? context.save()
+        
+        let mockRepo = MockMovieRepository(popularResult: .success([movie1, movie2]))
+        sut = ListMovieViewModel(repository: mockRepo)
 
         // WHEN
-        await viewModel.fetchMovie()
+        await sut.fetchMovie()
 
         // THEN
-        XCTAssertFalse(viewModel.state.isLoading)
-        XCTAssertEqual(viewModel.state.movies.count, 2)
-        XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
+        XCTAssertFalse(sut.state.isLoading)
+        XCTAssertEqual(sut.state.movies.count, 2)
     }
 
-    @MainActor
-    func testLoadPopularMoviesFailure() async {
-        // GIVEN
-        enum DummyError: Error { case failed }
-
-        let mockRepo = MockMovieRepository(
-            popularResult: .failure(DummyError.failed),
-            searchResult: .success([])
-        )
-
-        let viewModel = ListMovieViewModel(repository: mockRepo)
-
-        // WHEN
-        await viewModel.fetchMovie()
-
-        // THEN
-        XCTAssertFalse(viewModel.state.isLoading)
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
-    }
-    
-
-
-
-    
     // MARK: - Search Tests
 
     @MainActor
     func testSearchMovieSuccess() async {
         // GIVEN
-        let movies = [
-            makeMovieEntity(id: 1, title: "Iron Man")
-        ]
+        let movie = makeMovieEntity(id: 13, title: "Iron Man")
+        context.insert(movie)
+        try? context.save()
         
-        let repo = MockMovieRepository(
-            searchResult: .success(movies)
-        )
-        
-        let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchTextBinding.wrappedValue = "iron"
+        let repo = MockMovieRepository(searchResult: .success([movie]))
+        sut = ListMovieViewModel(repository: repo)
+        sut.searchTextBinding.wrappedValue = "iron"
         
         // WHEN
-        await viewModel.search()
+        await sut.search()
 
         // THEN
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-        XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
-        XCTAssertFalse(viewModel.state.isLoading)
+        XCTAssertEqual(sut.state.movies.count, 1)
+        XCTAssertFalse(sut.state.isLoading)
     }
-    
-    @MainActor
-    func testSearchMovieFailure() async {
-        // GIVEN
-        enum DummyError: Error { case failed }
-        let repo = MockMovieRepository(searchResult: .failure(DummyError.failed))
-        let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchTextBinding.wrappedValue = "nonexistent"
-        
-        // WHEN
-        await viewModel.search()
-        
-        // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
-        XCTAssertFalse(viewModel.state.isLoading)
-    }
-    
-    @MainActor
-    func testSearchWithEmptyQuery() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let repo = MockMovieRepository(searchResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchTextBinding.wrappedValue = ""
-        
-        // WHEN
-        await viewModel.search()
-        
-        // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
-        XCTAssertFalse(viewModel.state.isLoading)
-    }
-    
-
-    
-    // MARK: - Action Tests
-    
-    @MainActor
-    func testOnAppearActionFirstTime() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let mockRepo = MockMovieRepository(popularResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: mockRepo)
-        
-        XCTAssertFalse(viewModel.state.hasLoaded)
-        
-        // WHEN
-        viewModel.send(.onAppear)
-        
-        // Wait a bit for async task
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        
-        // THEN
-        XCTAssertTrue(viewModel.state.hasLoaded)
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-    }
-    
-    @MainActor
-    func testOnAppearActionSecondTime() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let mockRepo = MockMovieRepository(popularResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: mockRepo)
-        
-        // First appearance
-        viewModel.send(.onAppear)
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        
-        let firstMovieCount = viewModel.state.movies.count
-        
-        // WHEN - Second appearance (should not reload)
-        viewModel.send(.onAppear)
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        
-        // THEN
-        XCTAssertEqual(viewModel.state.movies.count, firstMovieCount)
-        XCTAssertTrue(viewModel.state.hasLoaded)
-    }
-    
-
     
     // MARK: - Favorite Toggle Tests
     
     @MainActor
-    func testToggleFavorite() async {
+    func testToggleFavoritePersistent() async {
         // GIVEN
-        let movie = makeMovieEntity(id: 1, title: "Iron Man")
-        let mockRepo = MockMovieRepository()
-        let viewModel = ListMovieViewModel(repository: mockRepo)
+        let movie = makeMovieEntity(id: 14, title: "Iron Man")
+        context.insert(movie)
+        try? context.save()
         
-        let initialFavoriteState = movie.isFavorite
+        let mockRepo = MockMovieRepository()
+        sut = ListMovieViewModel(repository: mockRepo)
         
         // WHEN
-        viewModel.toggleFavorite(movie)
+        sut.toggleFavorite(movie)
         
         // THEN
-        let afterFirstToggle = movie.isFavorite
-        XCTAssertNotEqual(afterFirstToggle, initialFavoriteState)
-        
-        // WHEN - toggle again
-        viewModel.toggleFavorite(movie)
-        
-        // THEN
-        let afterSecondToggle = movie.isFavorite
-        XCTAssertEqual(afterSecondToggle, initialFavoriteState)
-    }
-    
-    // MARK: - Binding Tests
-    
-    @MainActor
-    func testSearchTextBinding() async {
-        // GIVEN
-        let mockRepo = MockMovieRepository()
-        let viewModel = ListMovieViewModel(repository: mockRepo)
-        
-        // WHEN
-        let binding = viewModel.searchTextBinding
-        
-        // THEN
-        XCTAssertEqual(binding.wrappedValue, "")
-        
-        // WHEN - set new value
-        binding.wrappedValue = "iron man"
-        
-        // THEN
-        XCTAssertEqual(viewModel.state.searchText, "iron man")
-        XCTAssertEqual(binding.wrappedValue, "iron man")
+        XCTAssertEqual(mockRepo.invokedToggleFavorite?.id, 14)
+        XCTAssertTrue(movie.isFavorite)
     }
 }

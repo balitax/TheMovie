@@ -53,7 +53,12 @@ final class DetailMovieViewModel {
         case .showTrailer:
             state.showTrailer.toggle()
         case .likeMovie:
-            state.movie?.isFavorite.toggle()
+            guard let movie = state.movie else { return }
+            do {
+                try repository.toggleFavorite(movie)
+            } catch {
+                state.errorMessage = error.localizedDescription
+            }
         case .dismissError:
             state.errorMessage = nil
         }

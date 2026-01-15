@@ -57,7 +57,7 @@ struct ListMovieView: View {
                     }
                 }
                 .refreshable {
-                    await viewModel.send(.refresh)
+                    viewModel.send(.refresh)
                 }
                 .accessibilityIdentifier("movie_list")
                 .background(Color.white)

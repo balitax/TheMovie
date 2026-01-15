@@ -2,8 +2,6 @@
 //  FavoriteMovieViewModelTests.swift
 //  TheMovieTests
 //
-//  Created by Aguscahyo on 15/01/26.
-//
 
 import XCTest
 @testable import TheMovie
@@ -11,124 +9,132 @@ import SwiftData
 
 final class FavoriteMovieViewModelTests: XCTestCase {
     
+    @MainActor
+    private var context: ModelContext!
+    @MainActor
+    private var sut: FavoriteMovieViewModel!
+    
+    @MainActor
+    override func setUp() async throws {
+        try await super.setUp()
+        context = TestModelContainer.makeFreshContext()
+    }
+    
+    @MainActor
+    override func tearDown() async throws {
+        // Clear all data from shared container to prevent pollution
+        try? context.delete(model: MovieEntity.self)
+        try? context.delete(model: FavoriteMovieEntity.self)
+        try? context.save()
+        
+        context = nil
+        sut = nil
+        try await super.tearDown()
+    }
+    
     // MARK: - Initialization Tests
     
     @MainActor
-    func testInitialization() async throws {
+    func testInitialization() async {
         // GIVEN
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let dataSource = MovieLocalDataSource(context: context)
+        let mockRepo = MockMovieRepository()
         
         // WHEN
-        let viewModel = FavoriteMovieViewModel(localDataSource: dataSource)
+        sut = FavoriteMovieViewModel(repository: mockRepo)
         
         // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
+        XCTAssertTrue(sut.state.movies.isEmpty)
+        XCTAssertNil(sut.state.errorMessage)
     }
     
     // MARK: - Fetch Tests
     
     @MainActor
-    func testLoadFavoriteMovies() async throws {
+    func testLoadFavoriteMoviesSuccess() async {
         // GIVEN
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let dataSource = MovieLocalDataSource(context: context)
+        let movie = makeMovieEntity(id: 1, title: "Favorite Movie")
+        context.insert(movie)
+        try? context.save()
         
-        // Insert mixed data (favorites and non-favorites)
-        let favMovie = makeMovieEntity(id: 1, title: "Favorite Movie")
-        favMovie.isFavorite = true
-        
-        let nonFavMovie = makeMovieEntity(id: 2, title: "Regular Movie")
-        nonFavMovie.isFavorite = false
-        
-        context.insert(favMovie)
-        context.insert(nonFavMovie)
-        try context.save()
-        
-        let viewModel = FavoriteMovieViewModel(localDataSource: dataSource)
+        let mockRepo = MockMovieRepository(favoritesResult: .success([movie]))
+        sut = FavoriteMovieViewModel(repository: mockRepo)
         
         // WHEN
-        viewModel.loadFavoriteMovies()
+        sut.loadFavoriteMovies()
         
         // THEN
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-        XCTAssertEqual(viewModel.state.movies.first?.title, "Favorite Movie")
-        XCTAssertEqual(viewModel.state.movies.first?.id, 1)
+        XCTAssertEqual(sut.state.movies.count, 1)
+        XCTAssertEqual(sut.state.movies.first?.title, "Favorite Movie")
     }
     
     @MainActor
-    func testLoadFavoriteMoviesEmpty() async throws {
+    func testLoadFavoriteMoviesFailure() async {
         // GIVEN
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let dataSource = MovieLocalDataSource(context: context)
-        
-        // Insert only non-favorite movie
-        let nonFavMovie = makeMovieEntity(id: 2, title: "Regular Movie")
-        nonFavMovie.isFavorite = false
-        
-        context.insert(nonFavMovie)
-        try context.save()
-        
-        let viewModel = FavoriteMovieViewModel(localDataSource: dataSource)
+        let error = NSError(domain: "test", code: 0, userInfo: [NSLocalizedDescriptionKey: "Fetch Error"])
+        let mockRepo = MockMovieRepository(favoritesResult: .failure(error))
+        sut = FavoriteMovieViewModel(repository: mockRepo)
         
         // WHEN
-        viewModel.loadFavoriteMovies()
+        sut.loadFavoriteMovies()
         
         // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
+        XCTAssertTrue(sut.state.movies.isEmpty)
+        XCTAssertEqual(sut.state.errorMessage, "Fetch Error")
     }
     
     // MARK: - Action Tests
     
     @MainActor
-    func testOnAppearAction() async throws {
+    func testOnAppearAction() async {
         // GIVEN
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let dataSource = MovieLocalDataSource(context: context)
+        let movie = makeMovieEntity(id: 2, title: "Star Wars")
+        context.insert(movie)
+        try? context.save()
         
-        // Pre-populate with a favorite
-        let favMovie = makeMovieEntity(id: 1, title: "Start Wars")
-        favMovie.isFavorite = true
-        context.insert(favMovie)
-        try context.save()
-        
-        let viewModel = FavoriteMovieViewModel(localDataSource: dataSource)
+        let mockRepo = MockMovieRepository(favoritesResult: .success([movie]))
+        sut = FavoriteMovieViewModel(repository: mockRepo)
         
         // WHEN
-        viewModel.send(.onAppear)
+        sut.send(.onAppear)
         
         // THEN
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-        XCTAssertEqual(viewModel.state.movies.first?.title, "Start Wars")
+        XCTAssertEqual(sut.state.movies.count, 1)
+        XCTAssertEqual(sut.state.movies.first?.title, "Star Wars")
     }
     
     @MainActor
-    func testToggleFavoriteMovesMovieFromList() async throws {
+    func testDismissErrorAction() async {
         // GIVEN
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let dataSource = MovieLocalDataSource(context: context)
+        let mockRepo = MockMovieRepository()
+        sut = FavoriteMovieViewModel(repository: mockRepo)
         
-        let favMovie = makeMovieEntity(id: 1, title: "Favorite Movie")
-        favMovie.isFavorite = true
-        context.insert(favMovie)
-        try context.save()
+        // GIVEN state has error
+        let error = NSError(domain: "test", code: 0, userInfo: [NSLocalizedDescriptionKey: "Error"])
+        mockRepo.favoritesResult = .failure(error)
+        sut.loadFavoriteMovies()
+        XCTAssertNotNil(sut.state.errorMessage)
         
-        let viewModel = FavoriteMovieViewModel(localDataSource: dataSource)
-        viewModel.loadFavoriteMovies()
-        
-        // Verify initial state
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-        
-        // WHEN - Toggle favorite (un-favorite it)
-        viewModel.toggleFavorite(favMovie)
+        // WHEN
+        sut.send(.dismissError)
         
         // THEN
-        XCTAssertTrue(viewModel.state.movies.isEmpty)
-        XCTAssertFalse(favMovie.isFavorite)
+        XCTAssertNil(sut.state.errorMessage)
+    }
+    
+    @MainActor
+    func testToggleFavoritePersistent() async {
+        // GIVEN
+        let movie = makeMovieEntity(id: 3, title: "Movie")
+        context.insert(movie)
+        try? context.save()
+        
+        let mockRepo = MockMovieRepository()
+        sut = FavoriteMovieViewModel(repository: mockRepo)
+        
+        // WHEN
+        sut.toggleFavorite(movie)
+        
+        // THEN
+        XCTAssertEqual(mockRepo.invokedToggleFavorite?.id, movie.id)
     }
 }

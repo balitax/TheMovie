@@ -12,11 +12,13 @@ import Combine
 // MARK: - STATE
 struct FavoriteMovieState {
     var movies: [MovieEntity] = []
+    var errorMessage: String?
 }
 
 // MARK: - ACTION
 enum FavoriteMovieAction {
     case onAppear
+    case dismissError
 }
 
 @Observable
@@ -24,16 +26,18 @@ final class FavoriteMovieViewModel {
 
     // MARK: Variables
     private(set) var state = FavoriteMovieState()
-    private let localDataSource: MovieLocalDataSource
+    private let repository: MovieRepositoryProtocol
 
-    init(localDataSource: MovieLocalDataSource) {
-        self.localDataSource = localDataSource
+    init(repository: MovieRepositoryProtocol) {
+        self.repository = repository
     }
 
     func send(_ action: FavoriteMovieAction) {
         switch action {
         case .onAppear:
             loadFavoriteMovies()
+        case .dismissError:
+            state.errorMessage = nil
         }
     }
 }
@@ -41,16 +45,20 @@ final class FavoriteMovieViewModel {
 extension FavoriteMovieViewModel {
     func loadFavoriteMovies() {
         do {
-            let movies = try localDataSource.fetchMovies()
-            state.movies = movies.filter { $0.isFavorite }
+            state.movies = try repository.getFavorites()
         } catch {
             state.movies = []
+            state.errorMessage = error.localizedDescription
             print("error log console :\(error.localizedDescription)")
         }
     }
 
     func toggleFavorite(_ movie: MovieEntity) {
-        movie.isFavorite.toggle()
-        loadFavoriteMovies()
+        do {
+            try repository.toggleFavorite(movie)
+            loadFavoriteMovies()
+        } catch {
+            state.errorMessage = error.localizedDescription
+        }
     }
 }

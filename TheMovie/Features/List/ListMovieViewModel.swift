@@ -154,7 +154,11 @@ extension ListMovieViewModel {
     }
 
     func toggleFavorite(_ movie: MovieEntity) {
-        movie.isFavorite.toggle()
+        do {
+            try repository.toggleFavorite(movie)
+        } catch {
+            state.errorMessage = error.localizedDescription
+        }
     }
 
     var searchTextBinding: Binding<String> {

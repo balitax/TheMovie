@@ -10,7 +10,10 @@ import SwiftData
 struct SwiftDataStack {
 
     static func makeContainer() -> ModelContainer {
-        let schema = Schema([MovieEntity.self])
+        let schema = Schema([
+            MovieEntity.self,
+            FavoriteMovieEntity.self
+        ])
         return try! ModelContainer(for: schema)
     }
 }

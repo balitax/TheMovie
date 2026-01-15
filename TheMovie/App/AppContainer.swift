@@ -38,15 +38,10 @@ final class AppContainer {
         )
     }
 
-    // MARK: - Local Data Sources
-    private func makeMovieLocalDataSource() -> MovieLocalDataSource {
-        MovieLocalDataSource(context: modelContext)
-    }
-
     // MARK: - Favorite Movie ViewModels
     func makeFavoriteMovieViewModel() -> FavoriteMovieViewModel {
         FavoriteMovieViewModel(
-            localDataSource: makeMovieLocalDataSource()
+            repository: makeMovieRepository()
         )
     }
 }
