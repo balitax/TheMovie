@@ -7,6 +7,7 @@
 
 @testable import TheMovie
 
+@MainActor
 func makeMovieEntity(
     id: Int = 1,
     title: String = "Iron Man"
