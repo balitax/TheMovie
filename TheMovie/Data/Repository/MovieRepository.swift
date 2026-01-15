@@ -8,7 +8,7 @@
 import Foundation
 
 protocol MovieRepositoryProtocol: AnyObject {
-    func getPopularMovies(page: Int) async throws -> PaginatedResult
+    func getPopularMovies(page: Int, forceRefresh: Bool) async throws -> PaginatedResult
     func searchMovie(query: String, page: Int) async throws -> PaginatedResult
     func getMovieDetail(id: Int) async throws -> MovieDetailDTO
 }
@@ -30,10 +30,11 @@ final class MovieRepository {
     }
 
 
-    func getPopularMovies(page: Int = 1) async throws -> PaginatedResult {
+    func getPopularMovies(page: Int = 1, forceRefresh: Bool = false) async throws -> PaginatedResult {
 
-        // Offline-first (only for first page)
-        if page == 1,
+        // Offline-first (only for first page, if not refreshing)
+        if !forceRefresh,
+           page == 1,
            let cached = try? local.fetchMovies(),
            !cached.isEmpty {
             // Return Int.max to allow trying to fetch next page (pagination sync will happen on page 2)

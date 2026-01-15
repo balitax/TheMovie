@@ -23,7 +23,7 @@ final class MockMovieRepository: MovieRepositoryProtocol {
         self.detailResult = detailResult
     }
 
-    func getPopularMovies(page: Int) async throws -> PaginatedResult {
+    func getPopularMovies(page: Int, forceRefresh: Bool) async throws -> PaginatedResult {
         switch popularResult {
         case .success(let movies): 
             return PaginatedResult(movies: movies, totalPages: 1, currentPage: 1)
