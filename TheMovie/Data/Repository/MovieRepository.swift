@@ -8,9 +8,15 @@
 import Foundation
 
 protocol MovieRepositoryProtocol: AnyObject {
-    func getPopularMovies(page: Int) async throws -> [MovieEntity]
-    func searchMovie(query: String, page: Int) async throws -> [MovieEntity]
+    func getPopularMovies(page: Int) async throws -> PaginatedResult
+    func searchMovie(query: String, page: Int) async throws -> PaginatedResult
     func getMovieDetail(id: Int) async throws -> MovieDetailDTO
+}
+
+struct PaginatedResult {
+    let movies: [MovieEntity]
+    let totalPages: Int
+    let currentPage: Int
 }
 
 final class MovieRepository {
@@ -23,12 +29,14 @@ final class MovieRepository {
         self.local = local
     }
 
-    func getPopularMovies(page: Int = 1) async throws -> [MovieEntity] {
 
-        // Offline-first
-        if let cached = try? local.fetchMovies(),
+    func getPopularMovies(page: Int = 1) async throws -> PaginatedResult {
+
+        // Offline-first (only for first page)
+        if page == 1,
+           let cached = try? local.fetchMovies(),
            !cached.isEmpty {
-            return cached
+            return PaginatedResult(movies: cached, totalPages: 1, currentPage: 1)
         }
 
         // Fetch from API
@@ -36,19 +44,29 @@ final class MovieRepository {
 
         let entities = response.results.map { $0.toEntity() }
 
-        // Save locally
-        try local.clear()
-        try local.save(entities)
+        // Save locally (only first page)
+        if page == 1 {
+            try? local.clear()
+            try? local.save(entities)
+        }
 
-        return entities
+        return PaginatedResult(
+            movies: entities,
+            totalPages: response.totalPages,
+            currentPage: response.page
+        )
     }
     
-    func searchMovie(query: String, page: Int = 1) async throws -> [MovieEntity] {
+    func searchMovie(query: String, page: Int = 1) async throws -> PaginatedResult {
         let response: MovieDTO = try await remote.request(.search(query: query, page: page))
 
         let entities = response.results.map { $0.toEntity() }
 
-        return entities
+        return PaginatedResult(
+            movies: entities,
+            totalPages: response.totalPages,
+            currentPage: response.page
+        )
     }
 
     func getMovieDetail(id: Int) async throws -> MovieDetailDTO {

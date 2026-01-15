@@ -12,13 +12,24 @@ final class APIClient: NetworkService {
     func request<T: Decodable>(_ endpoint: MovieEndpoint) async throws -> T {
 
         let url = APIConfig.baseURL + endpoint.path
+        print("URL ", url)
 
-        let response = await AF.request(
+        let dataRequest = AF.request(
             url,
             parameters: endpoint.parameters
         )
-        .serializingDecodable(T.self)
-        .response
+        
+        #if DEBUG
+        dataRequest.cURLDescription { description in
+             print("➡️ Request: \(description)")
+        }
+        #endif
+
+        let response = await dataRequest
+            .serializingDecodable(T.self)
+            .response
+        
+        print("RESPONSE ", response)
 
         switch response.result {
         case .success(let value):

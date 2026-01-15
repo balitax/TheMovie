@@ -15,6 +15,14 @@ struct ListMovieState {
     var isLoading = false
     var hasLoaded: Bool = false
     var searchText: String = ""
+    
+    var currentPage: Int = 1
+    var totalPages: Int = 1
+    var isFetchingMore: Bool = false
+    
+    var canLoadMore: Bool {
+        !isLoading && !isFetchingMore && currentPage < totalPages
+    }
 }
 
 // MARK: - ACTION
@@ -22,6 +30,7 @@ enum ListMovieAction {
     case onAppear
     case searchMovie
     case reset
+    case loadMore
 }
 
 @Observable
@@ -43,54 +52,90 @@ final class ListMovieViewModel {
             guard !state.hasLoaded else { return }
             state.hasLoaded = true
             Task {
-                await fetchMovie()
+                await fetchMovie(page: 1)
             }
         case .searchMovie:
             Task {
-                await search()
+                await search(page: 1)
             }
         case .reset:
             state.hasLoaded = true
             Task {
-                await fetchMovie()
+                await fetchMovie(page: 1)
+            }
+        case .loadMore:
+            guard state.canLoadMore else { return }
+            Task {
+                if state.searchText.isEmpty {
+                    await fetchMovie(page: state.currentPage + 1)
+                } else {
+                    await search(page: state.currentPage + 1)
+                }
             }
         }
     }
 }
 
 extension ListMovieViewModel {
-    func fetchMovie() async {
-        state.isLoading = true
+    func fetchMovie(page: Int = 1) async {
+        if page == 1 {
+            state.isLoading = true
+        } else {
+            state.isFetchingMore = true
+        }
+        
         defer {
             state.isLoading = false
+            state.isFetchingMore = false
         }
 
         do {
-            state.movies = try await repository.getPopularMovies(page: 1)
+            let result = try await repository.getPopularMovies(page: page)
+            if page == 1 {
+                state.movies = result.movies
+            } else {
+                state.movies.append(contentsOf: result.movies)
+            }
+            state.currentPage = result.currentPage
+            state.totalPages = result.totalPages
         } catch {
-            state.movies = []
+            if page == 1 { state.movies = [] }
             print("error log console : \(error.localizedDescription)")
         }
     }
 
-    func search() async {
+    func search(page: Int = 1) async {
         guard !state.searchText.isEmpty else {
-            await fetchMovie()
+            await fetchMovie(page: 1)
             return
         }
 
-        state.isLoading = true
+        if page == 1 {
+            state.isLoading = true
+        } else {
+            state.isFetchingMore = true
+        }
+        
         defer {
             state.isLoading = false
+            state.isFetchingMore = false
         }
 
         do {
-            state.movies = try await repository.searchMovie(
+            let result = try await repository.searchMovie(
                 query: state.searchText,
-                page: 1
+                page: page
             )
+            
+            if page == 1 {
+                state.movies = result.movies
+            } else {
+                state.movies.append(contentsOf: result.movies)
+            }
+            state.currentPage = result.currentPage
+            state.totalPages = result.totalPages
         } catch {
-            state.movies = []
+            if page == 1 { state.movies = [] }
             print("error log console : \(error.localizedDescription)")
         }
     }

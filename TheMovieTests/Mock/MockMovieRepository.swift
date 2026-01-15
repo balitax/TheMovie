@@ -23,16 +23,18 @@ final class MockMovieRepository: MovieRepositoryProtocol {
         self.detailResult = detailResult
     }
 
-    func getPopularMovies(page: Int) async throws -> [MovieEntity] {
+    func getPopularMovies(page: Int) async throws -> PaginatedResult {
         switch popularResult {
-        case .success(let movies): return movies
+        case .success(let movies): 
+            return PaginatedResult(movies: movies, totalPages: 1, currentPage: 1)
         case .failure(let error): throw error
         }
     }
 
-    func searchMovie(query: String, page: Int) async throws -> [MovieEntity] {
+    func searchMovie(query: String, page: Int) async throws -> PaginatedResult {
         switch searchResult {
-        case .success(let movies): return movies
+        case .success(let movies): 
+            return PaginatedResult(movies: movies, totalPages: 1, currentPage: 1)
         case .failure(let error): throw error
         }
     }

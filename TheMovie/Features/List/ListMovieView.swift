@@ -41,9 +41,20 @@ struct ListMovieView: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("movie_cell_\(movie.id)")
+                            .onAppear {
+                                if movie == viewModel.state.movies.last {
+                                    viewModel.send(.loadMore)
+                                }
+                            }
                         }
                     }
                     .padding(16)
+                    
+                    if viewModel.state.isFetchingMore {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
                 }
                 .accessibilityIdentifier("movie_list")
                 .background(Color.white)

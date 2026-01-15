@@ -18,7 +18,6 @@ final class MovieEntity {
     var title: String
     var overview: String
     var posterPath: String
-    var backdropPath: String
     var releaseDate: String
 
     // MARK: - Favorite
@@ -32,13 +31,6 @@ final class MovieEntity {
     var popularity: Double
     var voteAverage: Double
     var voteCount: Int
-    var adult: Bool
-    var video: Bool
-
-    // MARK: - Extra
-    var originalTitle: String
-    var originalLanguage: String
-    var genreIDs: [Int]
 
     // MARK: - Offline Support
     var cachedAt: Date
@@ -48,16 +40,10 @@ final class MovieEntity {
         title: String,
         overview: String,
         posterPath: String,
-        backdropPath: String,
         releaseDate: String,
         popularity: Double,
         voteAverage: Double,
         voteCount: Int,
-        adult: Bool,
-        video: Bool,
-        originalTitle: String,
-        originalLanguage: String,
-        genreIDs: [Int],
         isFavorite: Bool = false,
         cachedAt: Date = .now
     ) {
@@ -65,16 +51,10 @@ final class MovieEntity {
         self.title = title
         self.overview = overview
         self.posterPath = posterPath
-        self.backdropPath = backdropPath
         self.releaseDate = releaseDate
         self.popularity = popularity
         self.voteAverage = voteAverage
         self.voteCount = voteCount
-        self.adult = adult
-        self.video = video
-        self.originalTitle = originalTitle
-        self.originalLanguage = originalLanguage
-        self.genreIDs = genreIDs
         self.isFavorite = isFavorite
         self.cachedAt = cachedAt
     }
@@ -85,16 +65,10 @@ final class MovieEntity {
         self.title = ""
         self.overview = ""
         self.posterPath = ""
-        self.backdropPath = ""
         self.releaseDate = ""
         self.popularity = 0
         self.voteAverage = 0
         self.voteCount = 0
-        self.adult = false
-        self.video = false
-        self.originalTitle = ""
-        self.originalLanguage = ""
-        self.genreIDs = []
         self.isFavorite = false
         self.cachedAt = .now
     }
