@@ -19,6 +19,7 @@ struct ListMovieState {
     var currentPage: Int = 1
     var totalPages: Int = 1
     var isFetchingMore: Bool = false
+    var errorMessage: String?
     
     var canLoadMore: Bool {
         !isLoading && !isFetchingMore && currentPage < totalPages
@@ -31,6 +32,7 @@ enum ListMovieAction {
     case searchMovie
     case reset
     case loadMore
+    case dismissError
 }
 
 @Observable
@@ -72,6 +74,8 @@ final class ListMovieViewModel {
                     await search(page: state.currentPage + 1)
                 }
             }
+        case .dismissError:
+            state.errorMessage = nil
         }
     }
 }
@@ -100,7 +104,7 @@ extension ListMovieViewModel {
             state.totalPages = result.totalPages
         } catch {
             if page == 1 { state.movies = [] }
-            print("error log console : \(error.localizedDescription)")
+            state.errorMessage = error.localizedDescription
         }
     }
 
@@ -136,7 +140,7 @@ extension ListMovieViewModel {
             state.totalPages = result.totalPages
         } catch {
             if page == 1 { state.movies = [] }
-            print("error log console : \(error.localizedDescription)")
+            state.errorMessage = error.localizedDescription
         }
     }
 

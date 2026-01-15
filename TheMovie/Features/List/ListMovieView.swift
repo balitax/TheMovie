@@ -63,11 +63,7 @@ struct ListMovieView: View {
                 if viewModel.state.isLoading {
                     LoadingView()
                 } else if viewModel.state.movies.isEmpty {
-                    EmptyStateView(
-                        iconName: viewModel.state.searchText.isEmpty ? "film.stack" : "magnifyingglass",
-                        title: viewModel.state.searchText.isEmpty ? "No Movies" : "No Results Found",
-                        message: viewModel.state.searchText.isEmpty ? "Popular movies will appear here." : "We couldn't find any movies matching '\(viewModel.state.searchText)'."
-                    )
+                    emptyStateView
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -96,7 +92,26 @@ struct ListMovieView: View {
             .onAppear {
                 viewModel.send(.onAppear)
             }
+            .alert(
+                "Error",
+                isPresented: Binding(
+                    get: { viewModel.state.errorMessage != nil },
+                    set: { _ in viewModel.send(.dismissError) }
+                )
+            ) {
+                Button("OK") {}
+            } message: {
+                Text(viewModel.state.errorMessage ?? "")
+            }
         }
+    }
+    
+    var emptyStateView: some View {
+        EmptyStateView(
+            iconName: viewModel.state.searchText.isEmpty ? "film.stack" : "magnifyingglass",
+            title: viewModel.state.searchText.isEmpty ? "No Movies" : "No Results Found",
+            message: viewModel.state.searchText.isEmpty ? "Popular movies will appear here." : "We couldn't find any movies matching '\(viewModel.state.searchText)'."
+        )
     }
 }
 
