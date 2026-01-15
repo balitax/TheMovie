@@ -10,32 +10,42 @@ import XCTest
 final class TheMovieUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testSmokeFlow() throws {
+        // 1. Launch App
         let app = XCUIApplication()
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+        
+        // 2. Verify List Screen
+        let movieList = app.scrollViews["movie_list"]
+        XCTAssertTrue(movieList.waitForExistence(timeout: 5), "Movie List should appear")
+        
+        // 3. Find and Tap a Movie Cell
+        // Since we fetch remotely, we might need to wait a bit for cells to appear
+        // We look for any button that starts with "movie_cell_"
+        let movieCell = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'movie_cell_'")).firstMatch
+        XCTAssertTrue(movieCell.waitForExistence(timeout: 10), "At least one movie cell should appear")
+        movieCell.tap()
+        
+        // 4. Verify Detail Screen
+        let likeButton = app.buttons["like_button"]
+        XCTAssertTrue(likeButton.waitForExistence(timeout: 5), "Like button should appear on Detail Screen")
+        
+        // 5. Toggle Favorite
+        likeButton.tap()
+        
+        // 6. Navigate Back
+        // The back button usually has the title of the previous screen ("The Movie" is custom title in toolbar)
+        // Or it is the first button in the navigation bar
+        let backButton = app.navigationBars.buttons.element(boundBy: 0)
+        if backButton.exists {
+             backButton.tap()
         }
+        
+        // 7. Verify back directly to List
+        XCTAssertTrue(movieList.exists, "Should return to Movie List")
     }
 }

@@ -9,24 +9,24 @@ import SwiftUI
 import SwiftData
 
 struct ListMovieView: View {
-
+    
     @Environment(\.modelContext) private var modelContext
-
+    
     private let columns: [GridItem] = Array(
         repeating: GridItem(.flexible(), spacing: 12),
         count: 2
     )
-
+    
     @State private var viewModel: ListMovieViewModel
     
     init(viewModel: ListMovieViewModel) {
         self.viewModel = viewModel
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack {
-
+                
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(viewModel.state.movies) { movie in
@@ -40,12 +40,14 @@ struct ListMovieView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("movie_cell_\(movie.id)")
                         }
                     }
                     .padding(16)
                 }
+                .accessibilityIdentifier("movie_list")
                 .background(Color.white)
-
+                
                 // MARK: - Loading Overlay
                 if viewModel.state.isLoading {
                     LoadingView()
