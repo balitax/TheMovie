@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ListMovieView: View {
 
@@ -13,26 +14,38 @@ struct ListMovieView: View {
         repeating: GridItem(.flexible(), spacing: 12),
         count: 2
     )
-    
+
     @State private var searchMovie: String = ""
-    @Binding var showSearch: Bool
+    @State private var viewModel: ListMovieViewModel
+    
+    init(viewModel: ListMovieViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(0..<20, id: \.self) { _ in
-                        NavigationLink {
-                            DetailMovieView()
-                        } label: {
-                            ListMovieCellView()
+            ZStack {
+
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(viewModel.state.movies) { movie in
+                            NavigationLink {
+                                DetailMovieView()
+                            } label: {
+                                ListMovieCellView(movie: movie)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(16)
                 }
-                .padding(16)
+                .background(Color.white)
+
+                // MARK: - Loading Overlay
+                if viewModel.state.isLoading {
+                    LoadingView()
+                }
             }
-            .background(Color.white)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color.white, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -45,22 +58,26 @@ struct ListMovieView: View {
             }
             .searchable(
                 text: $searchMovie,
-                isPresented: $showSearch,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search movies"
             )
             .onSubmit(of: .search) {
-                
+
             }
-            .onChange(of: showSearch) { _, isShown in
-                if !isShown {
-                    searchMovie = ""
-                }
+            .onAppear {
+                viewModel.send(.onAppear)
             }
         }
     }
 }
 
 #Preview {
-    ListMovieView(showSearch: .constant(false))
+    let container = try! ModelContainer(for: MovieEntity.self)
+    let context = ModelContext(container)
+    
+    let appContainer = AppContainer(modelContext: context)
+    
+    ListMovieView(
+        viewModel: appContainer.makeListMovieViewModel()
+    )
 }

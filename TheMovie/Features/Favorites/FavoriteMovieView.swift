@@ -22,7 +22,7 @@ struct FavoriteMovieView: View {
                         NavigationLink {
                             DetailMovieView()
                         } label: {
-                            ListMovieCellView()
+                            ListMovieCellView(movie: MovieEntity())
                         }
                         .buttonStyle(.plain)
                     }

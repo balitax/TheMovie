@@ -6,22 +6,33 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ListMovieCellView: View {
+    
+    let movie: MovieEntity
+
+    init(movie: MovieEntity) {
+        self.movie = movie
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            
+
             ZStack(alignment: .top) {
 
-                Image("movie_img")
+                KFImage(movie.posterImageURL)
+                    .placeholder {
+                        ProgressView()
+                    }
                     .resizable()
                     .scaledToFill()
                     .frame(maxHeight: 250)
                     .clipped()
 
                 HStack {
-                    
-                    Label("3 May 2008", systemImage: "calendar")
+
+                    Label(movie.releaseDate, systemImage: "calendar.circle.fill")
                         .font(.caption)
                         .foregroundColor(AppColor.textPrimary)
                         .padding(.horizontal, 8)
@@ -34,7 +45,7 @@ struct ListMovieCellView: View {
                     Button(action: {
                         
                     }, label: {
-                        Image(systemName: "heart")
+                        Image(systemName: "heart.fill")
                             .font(.caption)
                             .foregroundColor(AppColor.textPrimary)
                             .padding(8)
@@ -48,19 +59,20 @@ struct ListMovieCellView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Invincible Iron Man (2008)")
+                Text(movie.title)
                     .font(.subheadline.bold())
                     .lineLimit(2)
                     .foregroundColor(AppColor.textPrimary)
                 
                 HStack(spacing: 6) {
-                    Text("ACTION")
+                    Label("\(movie.popularity.toKFormat)", systemImage: "p.circle.fill")
                         .font(.caption)
                     
                     Text("•")
                         .foregroundColor(.gray)
                     
-                    Text("FHD")
+                    Label("\(movie.voteAverage.toKFormat)", systemImage: "checkmark.seal.fill")
+                        .font(.caption)
                         .font(.caption.bold())
                     
                     Spacer()
@@ -76,5 +88,5 @@ struct ListMovieCellView: View {
 }
 
 #Preview {
-    ListMovieCellView()
+    ListMovieCellView(movie: MovieEntity())
 }

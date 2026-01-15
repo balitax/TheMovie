@@ -7,7 +7,6 @@
 
 @testable import TheMovie
 
-@MainActor
 final class MockMovieRepository: MovieRepositoryProtocol {
 
     let popularResult: Result<[MovieEntity], Error>

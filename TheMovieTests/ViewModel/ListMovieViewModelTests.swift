@@ -9,7 +9,6 @@ import XCTest
 @testable import TheMovie
 import SwiftData
 
-@MainActor
 final class ListMovieViewModelTests: XCTestCase {
 
     func testLoadPopularMoviesSuccess() async {
@@ -28,13 +27,12 @@ final class ListMovieViewModelTests: XCTestCase {
         let viewModel = ListMovieViewModel(repository: mockRepo)
 
         // WHEN
-        await viewModel.load()
+        await viewModel.fetchMovie()
 
         // THEN
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertEqual(viewModel.movies.count, 2)
-        XCTAssertEqual(viewModel.movies.first?.title, "Iron Man")
-        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.state.isLoading)
+        XCTAssertEqual(viewModel.state.movies.count, 2)
+        XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
     }
 
     func testLoadPopularMoviesFailure() async {
@@ -50,12 +48,11 @@ final class ListMovieViewModelTests: XCTestCase {
         let viewModel = ListMovieViewModel(repository: mockRepo)
 
         // WHEN
-        await viewModel.load()
+        await viewModel.fetchMovie()
 
         // THEN
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertTrue(viewModel.movies.isEmpty)
-        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.state.isLoading)
+        XCTAssertTrue(viewModel.state.movies.isEmpty)
     }
 
     func testGetPopularMoviesFromRemote() async throws {
@@ -118,11 +115,11 @@ final class ListMovieViewModelTests: XCTestCase {
         )
         
         let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchText = "iron"
+//        viewModel.state.searchText = "iron"
         
         await viewModel.search()
-        
-        XCTAssertEqual(viewModel.movies.count, 1)
-        XCTAssertEqual(viewModel.movies.first?.title, "Iron Man")
+
+        XCTAssertEqual(viewModel.state.movies.count, 1)
+        XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
     }
 }

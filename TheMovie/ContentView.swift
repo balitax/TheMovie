@@ -9,37 +9,27 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    
+
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: AppTab = .home
-    @State private var showSearch = false
-    
+
     var body: some View {
+        let container = AppContainer(modelContext: modelContext)
+
         TabView(selection: $selectedTab) {
-            ListMovieView(showSearch: $showSearch)
+            ListMovieView(viewModel: container.makeListMovieViewModel())
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
                 .tag(AppTab.home)
-            
+
             FavoriteMovieView()
                 .tabItem {
                     Label("Favorites", systemImage: "heart.fill")
                 }
                 .tag(AppTab.favorites)
-            
-            Color.clear
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                .tag(AppTab.search)
         }
         .tint(AppColor.iconPrimary)
-        .onChange(of: selectedTab) { _, newTab in
-            if newTab == .search {
-                selectedTab = .home
-                showSearch = true
-            }
-        }
     }
 }
 

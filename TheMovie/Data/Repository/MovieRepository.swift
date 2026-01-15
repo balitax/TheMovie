@@ -7,19 +7,17 @@
 
 import Foundation
 
-@MainActor
 protocol MovieRepositoryProtocol: AnyObject {
     func getPopularMovies(page: Int) async throws -> [MovieEntity]
     func searchMovie(query: String, page: Int) async throws -> [MovieEntity]
 }
 
-@MainActor
 final class MovieRepository {
 
     private let remote: NetworkService
     private let local: MovieLocalDataSource
 
-    init(remote: NetworkService, local: MovieLocalDataSource) {
+    init(remote: NetworkService = APIClient(), local: MovieLocalDataSource) {
         self.remote = remote
         self.local = local
     }

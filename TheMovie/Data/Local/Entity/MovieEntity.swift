@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class MovieEntity {
+final class MovieEntity: Sendable {
 
     // MARK: - Identity
     @Attribute(.unique) var id: Int
@@ -20,6 +20,10 @@ final class MovieEntity {
     var posterPath: String
     var backdropPath: String
     var releaseDate: String
+
+    var posterImageURL: URL? {
+        return URL(string: "https://image.tmdb.org/t/p/original/\(posterPath)")
+    }
 
     // MARK: - Metadata
     var popularity: Double
@@ -68,5 +72,24 @@ final class MovieEntity {
         self.originalLanguage = originalLanguage
         self.genreIDs = genreIDs
         self.cachedAt = cachedAt
+    }
+
+    // inject empty data
+    init() {
+        self.id = 0
+        self.title = ""
+        self.overview = ""
+        self.posterPath = ""
+        self.backdropPath = ""
+        self.releaseDate = ""
+        self.popularity = 0
+        self.voteAverage = 0
+        self.voteCount = 0
+        self.adult = false
+        self.video = false
+        self.originalTitle = ""
+        self.originalLanguage = ""
+        self.genreIDs = []
+        self.cachedAt = .now
     }
 }
