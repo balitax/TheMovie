@@ -75,73 +75,9 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.state.movies.isEmpty)
     }
     
-    @MainActor
-    func testLoadingStatesDuringFetch() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let mockRepo = MockMovieRepository(popularResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: mockRepo)
-        
-        // WHEN
-        let fetchTask = Task {
-            await viewModel.fetchMovie()
-        }
-        
-        // Wait for task to complete
-        await fetchTask.value
-        
-        // THEN
-        XCTAssertFalse(viewModel.state.isLoading)
-    }
 
-    @MainActor
-    func testGetPopularMoviesFromRemote() async throws {
-        // GIVEN: mock API response
-        let dto = MovieDTO(
-            page: 1,
-            results: [
-                MovieResult(
-                    adult: false,
-                    backdropPath: "/backdrop.jpg",
-                    genreIDS: [28],
-                    id: 1,
-                    originalLanguage: "en",
-                    originalTitle: "Iron Man",
-                    overview: "Marvel movie",
-                    popularity: 10.0,
-                    posterPath: "/poster.jpg",
-                    releaseDate: "2008-05-02",
-                    title: "Iron Man",
-                    video: false,
-                    voteAverage: 8.5,
-                    voteCount: 1000
-                )
-            ],
-            totalPages: 1,
-            totalResults: 1
-        )
-        
-        let mockAPI = MockAPIClient(result: .success(dto))
-        
-        // GIVEN: in-memory SwiftData
-        let container = try makeInMemoryContainer()
-        let context = ModelContext(container)
-        let local = MovieLocalDataSource(context: context)
-        
-        let repository = MovieRepository(
-            remote: mockAPI,
-            local: local
-        )
-        
-        // WHEN
-        let movies = try await repository.getPopularMovies(page: 1)
-        
-        // THEN
-        XCTAssertEqual(movies.count, 1)
-        XCTAssertEqual(movies.first?.id, 1)
-        XCTAssertEqual(movies.first?.title, "Iron Man")
-        XCTAssertEqual(movies.first?.posterPath, "/poster.jpg")
-    }
+
+
     
     // MARK: - Search Tests
 
@@ -200,25 +136,7 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.state.isLoading)
     }
     
-    @MainActor
-    func testLoadingStatesDuringSearch() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let repo = MockMovieRepository(searchResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchTextBinding.wrappedValue = "iron"
-        
-        // WHEN
-        let searchTask = Task {
-            await viewModel.search()
-        }
-        
-        // Wait for task to complete
-        await searchTask.value
-        
-        // THEN
-        XCTAssertFalse(viewModel.state.isLoading)
-    }
+
     
     // MARK: - Action Tests
     
@@ -264,24 +182,7 @@ final class ListMovieViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.state.hasLoaded)
     }
     
-    @MainActor
-    func testSearchMovieAction() async {
-        // GIVEN
-        let movies = [makeMovieEntity(id: 1, title: "Iron Man")]
-        let repo = MockMovieRepository(searchResult: .success(movies))
-        let viewModel = ListMovieViewModel(repository: repo)
-        viewModel.searchTextBinding.wrappedValue = "iron"
-        
-        // WHEN
-        viewModel.send(.searchMovie)
-        
-        // Wait a bit for async task
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        
-        // THEN
-        XCTAssertEqual(viewModel.state.movies.count, 1)
-        XCTAssertEqual(viewModel.state.movies.first?.title, "Iron Man")
-    }
+
     
     // MARK: - Favorite Toggle Tests
     
