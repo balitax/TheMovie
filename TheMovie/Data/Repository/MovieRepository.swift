@@ -36,7 +36,8 @@ final class MovieRepository {
         if page == 1,
            let cached = try? local.fetchMovies(),
            !cached.isEmpty {
-            return PaginatedResult(movies: cached, totalPages: 1, currentPage: 1)
+            // Return Int.max to allow trying to fetch next page (pagination sync will happen on page 2)
+            return PaginatedResult(movies: cached, totalPages: Int.max, currentPage: 1)
         }
 
         // Fetch from API
