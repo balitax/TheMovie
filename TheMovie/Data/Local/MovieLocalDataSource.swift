@@ -20,6 +20,11 @@ final class MovieLocalDataSource {
         try context.fetch(FetchDescriptor<MovieEntity>())
     }
 
+    func fetchMovie(id: Int) throws -> MovieEntity? {
+        let descriptor = FetchDescriptor<MovieEntity>(predicate: #Predicate<MovieEntity> { $0.id == id })
+        return try context.fetch(descriptor).first
+    }
+
     func save(_ movies: [MovieEntity]) throws {
         movies.forEach { context.insert($0) }
         try context.save()

@@ -52,11 +52,15 @@ final class ListMovieViewModel {
     func send(_ action: ListMovieAction) {
         switch action {
         case .onAppear:
-            guard !state.hasLoaded else { return }
-            state.hasLoaded = true
-            state.isLoading = true
-            Task {
-                await fetchMovie(page: 1)
+            if !state.hasLoaded {
+                state.hasLoaded = true
+                state.isLoading = true
+                Task {
+                    await fetchMovie(page: 1)
+                }
+            } else {
+                // Re-sync favorites for existing list when coming back to screen
+                syncFavorites()
             }
         case .refresh:
             state.hasLoaded = true // Prevent auto-load conflict if any
@@ -158,6 +162,15 @@ extension ListMovieViewModel {
             try repository.toggleFavorite(movie)
         } catch {
             state.errorMessage = error.localizedDescription
+        }
+    }
+
+    private func syncFavorites() {
+        guard let favorites = try? repository.getFavorites() else { return }
+        let favoriteIds = Set(favorites.map { $0.id })
+        
+        for index in state.movies.indices {
+            state.movies[index].isFavorite = favoriteIds.contains(state.movies[index].id)
         }
     }
 

@@ -95,6 +95,11 @@ final class MovieRepository {
         if local.isFavorite(id: movie.id) {
             try local.deleteFavorite(id: movie.id)
             movie.isFavorite = false
+            
+            // Also sync cached MovieEntity if exists
+            if let cached = try? local.fetchMovie(id: movie.id) {
+                cached.isFavorite = false
+            }
         } else {
             let favorite = FavoriteMovieEntity(
                 id: movie.id,
@@ -108,6 +113,11 @@ final class MovieRepository {
             )
             try local.saveFavorite(favorite)
             movie.isFavorite = true
+            
+            // Also sync cached MovieEntity if exists
+            if let cached = try? local.fetchMovie(id: movie.id) {
+                cached.isFavorite = true
+            }
         }
     }
 }
