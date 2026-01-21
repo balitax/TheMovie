@@ -24,9 +24,9 @@
 
 ### App Preview
 
-| List View | Detail View |
-|:---------:|:-----------:|
-| <img src="docs/list.png" width="250" alt="List View" /> | <img src="docs/detail.png" width="250" alt="Detail View" /> |
+| List View | Detail View | Hightlight View |
+|:---------:|:-----------:|:-----------:|
+| <img src="docs/list.png" width="250" alt="List View" /> | <img src="docs/detail.png" width="250" alt="Detail View" /> | <img src="docs/hight.png" width="250" alt="Detail View" /> |
 
 ## 🛠 Tech Stack
 
