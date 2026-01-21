@@ -11,10 +11,12 @@ import Kingfisher
 struct ListMovieCellView: View {
     
     let movie: MovieEntity
+    let searchText: String
     let onToggleFavorite: (MovieEntity) -> Void
 
-    init(movie: MovieEntity, onToggleFavorite: @escaping (MovieEntity) -> Void) {
+    init(movie: MovieEntity, searchText: String, onToggleFavorite: @escaping (MovieEntity) -> Void) {
         self.movie = movie
+        self.searchText = searchText
         self.onToggleFavorite = onToggleFavorite
     }
 
@@ -65,12 +67,12 @@ struct ListMovieCellView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(movie.title)
-                    .font(.subheadline.bold())
-                    .lineLimit(2)
-                    .foregroundColor(AppColor.textPrimary)
-                    .frame(height: 40)
-                
+                Text.highlighted(
+                    movie.title,
+                    matching: searchText,
+                    highlightColor: AppColor.primary
+                )
+
                 HStack(spacing: 6) {
                     Label("\(movie.popularity.toKFormat)", systemImage: "p.circle.fill")
                         .font(.caption)
@@ -95,5 +97,5 @@ struct ListMovieCellView: View {
 }
 
 #Preview {
-    ListMovieCellView(movie: MovieEntity(), onToggleFavorite: { _ in })
+    ListMovieCellView(movie: MovieEntity(), searchText: "OK", onToggleFavorite: { _ in })
 }

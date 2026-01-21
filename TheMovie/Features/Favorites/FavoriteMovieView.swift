@@ -41,7 +41,7 @@ struct FavoriteMovieView: View {
                                     let detailViewModel = DetailMovieViewModel(repository: container.makeMovieRepository(), movie: movie)
                                     DetailMovieView(viewModel: detailViewModel)
                                 } label: {
-                                    ListMovieCellView(movie: movie) { favoriteMovie in
+                                    ListMovieCellView(movie: movie, searchText: "") { favoriteMovie in
                                         viewModel.toggleFavorite(favoriteMovie)
                                     }
                                 }
